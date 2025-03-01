@@ -34,4 +34,6 @@ jobs:
       run: bun run build
 
     - name: Test
+      env:
+        BUN_TEST_REPORTER: spec
       run: bun run test 
