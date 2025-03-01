@@ -10,7 +10,7 @@ import {
   StopPayload,
 } from './type';
 import { Command, PREDEFINED_CHARACTERS } from './constant';
-import { Nullable } from '../../type';
+import { Nullable } from '../../types/basic-type';
 import { CommandPayload } from './type';
 
 export class CharacterManager {
@@ -20,7 +20,7 @@ export class CharacterManager {
     private readonly ctx: DurableObjectState,
     private readonly logger: Logger,
     private readonly characterHistory: CharacterHistory,
-  ) {}
+  ) { }
 
   async initialize() {
     await this.logger.log(CharacterManager.name, 'Initializing predefined characters...');
