@@ -34,6 +34,6 @@ jobs:
       run: bun run build
 
     - name: Test
-      run: bun test --coverage --bail --json | bunx tap-spec
+      run: bun test --coverage --bail
       env:
         CI: true 
