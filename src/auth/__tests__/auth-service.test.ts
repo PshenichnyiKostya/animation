@@ -1,9 +1,11 @@
-import { describe, expect, test, beforeEach, spyOn } from "bun:test";
+import { describe, expect, test, beforeEach, spyOn, mock, Mock } from "bun:test";
 import AuthService from '../auth-service';
 import { PrismaClient } from '@prisma/client';
 import { UserType } from '../../user/constant';
 import UserService from '../../user/user-service';
 import { Logger } from '../../logger/logger';
+
+const getMockCalls = (fn: any) => (fn as Mock<any>).mock.calls;
 
 describe('AuthService', () => {
     let authService: AuthService;
@@ -38,34 +40,30 @@ describe('AuthService', () => {
         mockUserService = new UserService(mockPrisma);
         mockLogger = new Logger(mockEnv.CHARACTER_LOGS!);
 
-        spyOn(mockUserService, 'getUserByEmail');
+        (mockUserService.getUserByEmail as Mock<typeof mockUserService.getUserByEmail>) = mock(() => Promise.resolve(null));
         spyOn(mockLogger, 'log');
 
         authService = new AuthService(mockEnv as CloudflareBindings, mockPrisma);
-        // @ts-ignore - для тестов игнорируем типы
+        // @ts-ignore
         authService['userService'] = mockUserService;
-        // @ts-ignore - для тестов игнорируем типы
+        // @ts-ignore
         authService['logger'] = mockLogger;
     });
 
     describe('login', () => {
         test('should return null when user is not found', async () => {
-            // Arrange
             const email = 'nonexistent@example.com';
             const password = 'password123';
-            mockUserService.getUserByEmail.mockImplementation(async () => null);
+            (mockUserService.getUserByEmail as Mock<typeof mockUserService.getUserByEmail>) = mock(() => Promise.resolve(null));
 
-            // Act
             const result = await authService.login(email, password);
 
-            // Assert
             expect(result).toBeNull();
-            expect(mockUserService.getUserByEmail.mock.calls.length).toBe(1);
-            expect(mockUserService.getUserByEmail.mock.calls[0][0]).toBe(email);
+            expect(getMockCalls(mockUserService.getUserByEmail).length).toBe(1);
+            expect(getMockCalls(mockUserService.getUserByEmail)[0][0]).toBe(email);
         });
 
         test('should return null when password is invalid', async () => {
-            // Arrange
             const email = 'test@example.com';
             const password = 'wrongpassword';
             const mockUser = {
@@ -73,22 +71,21 @@ describe('AuthService', () => {
                 email: 'test@example.com',
                 password: 'correctpassword',
                 name: 'Test User',
-                type: UserType.User
+                type: UserType.User,
+                createdAt: new Date(),
+                updatedAt: new Date()
             };
 
-            mockUserService.getUserByEmail.mockImplementation(async () => mockUser);
+            (mockUserService.getUserByEmail as Mock<typeof mockUserService.getUserByEmail>) = mock(() => Promise.resolve(mockUser));
 
-            // Act
             const result = await authService.login(email, password);
 
-            // Assert
             expect(result).toBeNull();
-            expect(mockUserService.getUserByEmail.mock.calls.length).toBe(1);
-            expect(mockUserService.getUserByEmail.mock.calls[0][0]).toBe(email);
+            expect(getMockCalls(mockUserService.getUserByEmail).length).toBe(1);
+            expect(getMockCalls(mockUserService.getUserByEmail)[0][0]).toBe(email);
         });
 
         test('should return JWT token when credentials are valid', async () => {
-            // Arrange
             const email = 'test@example.com';
             const password = 'correctpassword';
             const mockUser = {
@@ -96,19 +93,19 @@ describe('AuthService', () => {
                 email: 'test@example.com',
                 password: 'correctpassword',
                 name: 'Test User',
-                type: UserType.User
+                type: UserType.User,
+                createdAt: new Date(),
+                updatedAt: new Date()
             };
 
-            mockUserService.getUserByEmail.mockImplementation(async () => mockUser);
+            (mockUserService.getUserByEmail as Mock<typeof mockUserService.getUserByEmail>) = mock(() => Promise.resolve(mockUser));
 
-            // Act
             const result = await authService.login(email, password);
 
-            // Assert
             expect(result).toBeTruthy();
             expect(typeof result).toBe('string');
-            expect(mockUserService.getUserByEmail.mock.calls.length).toBe(1);
-            expect(mockUserService.getUserByEmail.mock.calls[0][0]).toBe(email);
+            expect(getMockCalls(mockUserService.getUserByEmail).length).toBe(1);
+            expect(getMockCalls(mockUserService.getUserByEmail)[0][0]).toBe(email);
         });
     });
 }); 
