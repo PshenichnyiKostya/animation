@@ -7,7 +7,7 @@ import { UserType } from '../../user/constant';
 import UserService from '../../user/user-service';
 import { Logger } from '../../logger/logger';
 
-const getMockCalls = <T>(fn: Mock<T>) => fn.mock.calls;
+const getMockCalls = (fn: any) => (fn as Mock<(...args: any[]) => any>).mock.calls;
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -58,8 +58,8 @@ describe('AuthService', () => {
     test('should return null when user is not found', async () => {
       const email = 'nonexistent@example.com';
       const password = 'password123';
-      (mockUserService.getUserByEmail as Mock<typeof mockUserService.getUserByEmail>) = mock(() =>
-        Promise.resolve(null),
+      (mockUserService.getUserByEmail as Mock<typeof UserService.prototype.getUserByEmail>) = mock(
+        () => Promise.resolve(null),
       );
 
       const result = await authService.login(email, password);
