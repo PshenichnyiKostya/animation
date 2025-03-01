@@ -20,7 +20,7 @@ export class CharacterManager {
     private readonly ctx: DurableObjectState,
     private readonly logger: Logger,
     private readonly characterHistory: CharacterHistory,
-  ) { }
+  ) {}
 
   async initialize() {
     await this.logger.log(CharacterManager.name, 'Initializing predefined characters...');
