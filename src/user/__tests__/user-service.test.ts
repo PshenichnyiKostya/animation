@@ -1,10 +1,8 @@
-import { describe, expect, test, beforeEach, spyOn, Mock } from "bun:test";
+import { describe, expect, test, beforeEach, spyOn } from 'bun:test';
 import UserService from '../user-service';
 import { PrismaClient, User } from '@prisma/client';
 import { UserType } from '../constant';
 import UserRepository from '../user-repository';
-
-type UserFindFunction = (param: string) => Promise<User | null>;
 
 describe('UserService', () => {
     let userService: UserService;
@@ -18,27 +16,27 @@ describe('UserService', () => {
         name: 'Test User',
         type: UserType.User,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
     };
 
     beforeEach(() => {
         mockPrisma = {} as PrismaClient;
         mockUserRepository = new UserRepository(mockPrisma);
 
-        // @ts-ignore
+        // @ts-expect-error Mock implementation for testing
         spyOn(mockUserRepository, 'findById');
-        // @ts-ignore
+        // @ts-expect-error Mock implementation for testing
         spyOn(mockUserRepository, 'findByEmail');
 
         userService = new UserService(mockPrisma);
-        // @ts-ignore - для тестов игнорируем типы
+        // @ts-expect-error Private field access for testing
         userService['userRepository'] = mockUserRepository;
     });
 
     describe('getUserById', () => {
         test('should return user when found', async () => {
             // Arrange
-            // @ts-ignore
+            // @ts-expect-error Mock implementation for testing
             mockUserRepository.findById.mockImplementation(async () => mockUser);
 
             // Act
@@ -46,15 +44,15 @@ describe('UserService', () => {
 
             // Assert
             expect(result).toEqual(mockUser);
-            // @ts-ignore 
+            // @ts-expect-error Mock implementation for testing
             expect(mockUserRepository.findById.mock.calls.length).toBe(1);
-            // @ts-ignore 
+            // @ts-expect-error Mock implementation for testing
             expect(mockUserRepository.findById.mock.calls[0][0]).toBe('1');
         });
 
         test('should return null when user not found', async () => {
             // Arrange
-            // @ts-ignore 
+            // @ts-expect-error Mock implementation for testing
             mockUserRepository.findById.mockImplementation(async () => null);
 
             // Act
@@ -62,9 +60,9 @@ describe('UserService', () => {
 
             // Assert
             expect(result).toBeNull();
-            // @ts-ignore 
+            // @ts-expect-error Mock implementation for testing
             expect(mockUserRepository.findById.mock.calls.length).toBe(1);
-            // @ts-ignore 
+            // @ts-expect-error Mock implementation for testing
             expect(mockUserRepository.findById.mock.calls[0][0]).toBe('999');
         });
     });
@@ -72,7 +70,7 @@ describe('UserService', () => {
     describe('getUserByEmail', () => {
         test('should return user when found', async () => {
             // Arrange
-            // @ts-ignore
+            // @ts-expect-error Mock implementation for testing
             mockUserRepository.findByEmail.mockImplementation(async () => mockUser);
 
             // Act
@@ -80,15 +78,15 @@ describe('UserService', () => {
 
             // Assert
             expect(result).toEqual(mockUser);
-            // @ts-ignore
+            // @ts-expect-error Mock implementation for testing
             expect(mockUserRepository.findByEmail.mock.calls.length).toBe(1);
-            // @ts-ignore
+            // @ts-expect-error Mock implementation for testing
             expect(mockUserRepository.findByEmail.mock.calls[0][0]).toBe('test@example.com');
         });
 
         test('should return null when user not found', async () => {
             // Arrange
-            // @ts-ignore
+            // @ts-expect-error Mock implementation for testing
             mockUserRepository.findByEmail.mockImplementation(async () => null);
 
             // Act
@@ -96,10 +94,10 @@ describe('UserService', () => {
 
             // Assert
             expect(result).toBeNull();
-            // @ts-ignore 
+            // @ts-expect-error Mock implementation for testing
             expect(mockUserRepository.findByEmail.mock.calls.length).toBe(1);
-            // @ts-ignore 
+            // @ts-expect-error Mock implementation for testing
             expect(mockUserRepository.findByEmail.mock.calls[0][0]).toBe('nonexistent@example.com');
         });
     });
-}); 
+});

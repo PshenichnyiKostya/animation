@@ -1,0 +1,14 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "types": [
+            "@cloudflare/workers-types/2023-07-01",
+            "bun-types"
+        ]
+    },
+    "include": [
+        "src/**/*.test.ts",
+        "src/**/*.test.tsx"
+    ],
+    "exclude": []
+}

@@ -1,11 +1,11 @@
-import { describe, expect, test, beforeEach, spyOn, mock, Mock } from "bun:test";
+import { describe, expect, test, beforeEach, spyOn, mock, Mock } from 'bun:test';
 import AuthService from '../auth-service';
 import { PrismaClient } from '@prisma/client';
 import { UserType } from '../../user/constant';
 import UserService from '../../user/user-service';
 import { Logger } from '../../logger/logger';
 
-const getMockCalls = (fn: any) => (fn as Mock<any>).mock.calls;
+const getMockCalls = <T>(fn: Mock<T>) => fn.mock.calls;
 
 describe('AuthService', () => {
     let authService: AuthService;
@@ -21,18 +21,18 @@ describe('AuthService', () => {
             keys: [],
             list_complete: true,
             cursor: '',
-            cacheStatus: null
+            cacheStatus: null,
         }),
         getWithMetadata: async () => ({
             value: null,
             metadata: null,
-            cacheStatus: null
-        })
+            cacheStatus: null,
+        }),
     };
 
     const mockEnv: Partial<CloudflareBindings> = {
         JWT_SECRET: 'test-secret',
-        CHARACTER_LOGS: mockKV
+        CHARACTER_LOGS: mockKV,
     };
 
     beforeEach(() => {
@@ -40,13 +40,15 @@ describe('AuthService', () => {
         mockUserService = new UserService(mockPrisma);
         mockLogger = new Logger(mockEnv.CHARACTER_LOGS!);
 
-        (mockUserService.getUserByEmail as Mock<typeof mockUserService.getUserByEmail>) = mock(() => Promise.resolve(null));
+        (mockUserService.getUserByEmail as Mock<typeof mockUserService.getUserByEmail>) = mock(() =>
+            Promise.resolve(null),
+        );
         spyOn(mockLogger, 'log');
 
         authService = new AuthService(mockEnv as CloudflareBindings, mockPrisma);
-        // @ts-ignore
+        // @ts-expect-error Private field access for testing
         authService['userService'] = mockUserService;
-        // @ts-ignore
+        // @ts-expect-error Private field access for testing
         authService['logger'] = mockLogger;
     });
 
@@ -54,7 +56,9 @@ describe('AuthService', () => {
         test('should return null when user is not found', async () => {
             const email = 'nonexistent@example.com';
             const password = 'password123';
-            (mockUserService.getUserByEmail as Mock<typeof mockUserService.getUserByEmail>) = mock(() => Promise.resolve(null));
+            (mockUserService.getUserByEmail as Mock<typeof mockUserService.getUserByEmail>) = mock(() =>
+                Promise.resolve(null),
+            );
 
             const result = await authService.login(email, password);
 
@@ -73,10 +77,12 @@ describe('AuthService', () => {
                 name: 'Test User',
                 type: UserType.User,
                 createdAt: new Date(),
-                updatedAt: new Date()
+                updatedAt: new Date(),
             };
 
-            (mockUserService.getUserByEmail as Mock<typeof mockUserService.getUserByEmail>) = mock(() => Promise.resolve(mockUser));
+            (mockUserService.getUserByEmail as Mock<typeof mockUserService.getUserByEmail>) = mock(() =>
+                Promise.resolve(mockUser),
+            );
 
             const result = await authService.login(email, password);
 
@@ -95,10 +101,12 @@ describe('AuthService', () => {
                 name: 'Test User',
                 type: UserType.User,
                 createdAt: new Date(),
-                updatedAt: new Date()
+                updatedAt: new Date(),
             };
 
-            (mockUserService.getUserByEmail as Mock<typeof mockUserService.getUserByEmail>) = mock(() => Promise.resolve(mockUser));
+            (mockUserService.getUserByEmail as Mock<typeof mockUserService.getUserByEmail>) = mock(() =>
+                Promise.resolve(mockUser),
+            );
 
             const result = await authService.login(email, password);
 
@@ -108,4 +116,4 @@ describe('AuthService', () => {
             expect(getMockCalls(mockUserService.getUserByEmail)[0][0]).toBe(email);
         });
     });
-}); 
+});
